@@ -31,7 +31,7 @@
           <a href="">See all</a>
         </div>
 
-        <div class="books-container">
+        <div id="home-page-books-container" class="books-container">
           <div class="book-modal">
             <img
               src="./assets/images/book-covers/the-great-gatsby.jpg"
@@ -42,6 +42,9 @@
               By
               <span class="author-name">F. Scott Fitzgerald </span>
             </p>
+            <div class="read-status">
+              <i class="bi bi-check-circle-fill"></i>
+            </div>
           </div>
           <div class="book-modal">
             <img
@@ -53,6 +56,9 @@
               By
               <span class="author-name">Matt Haig</span>
             </p>
+            <div class="read-status">
+              <i class="bi bi-x-circle-fill"></i>
+            </div>
           </div>
           <div class="book-modal">
             <img
@@ -64,6 +70,9 @@
               By
               <span class="author-name">Mark Manson</span>
             </p>
+            <div class="read-status">
+              <i class="bi bi-hourglass-split"></i>
+            </div>
           </div>
           <div class="book-modal">
             <img
@@ -75,6 +84,9 @@
               By
               <span class="author-name">Sadegh Hedayat</span>
             </p>
+            <div class="read-status">
+              <i class="bi bi-x-circle-fill"></i>
+            </div>
           </div>
         </div>
       </main>
@@ -86,7 +98,7 @@
         <a href="" class="explore-button"
           ><i class="bi bi-map-fill icon"></i
         ></a>
-        <a href="" class="addnewbook-button"><i class="bi bi-plus icon"></i></a>
+        <a class="addnewbook-button"><i class="bi bi-plus icon"></i></a>
         <a href="" class="library-button"
           ><i class="bi bi-collection-fill icon"></i
         ></a>
@@ -94,6 +106,146 @@
           <i class="bi bi-bookmark-fill icon"></i>
         </a>
       </nav>
+
+      <!-- Modal Structure -->
+      <div id="addBookModal" class="modal">
+        <div class="modal-content">
+          <!-- Modal Header -->
+          <div class="modal-header">
+            <h2>Add a New Book</h2>
+            <button id="closeModalBtn" class="modal-close-btn">
+              <i class="bi bi-x" style="font-size: 2rem"></i>
+            </button>
+          </div>
+
+          <!-- Modal Body - Form -->
+          <form id="addBookForm">
+            <div class="form-group">
+              <label for="bookName">Book Name</label>
+              <input
+                type="text"
+                id="bookName"
+                name="bookName"
+                required
+                placeholder="e.g., The Great Gatsby"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="authorName">Author Name</label>
+              <input
+                type="text"
+                id="authorName"
+                name="authorName"
+                minlength="2"
+                required
+                placeholder="e.g., F. Scott Fitzgerald"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="pages">Number of Pages</label>
+              <input
+                type="number"
+                id="pages"
+                name="pages"
+                min="10"
+                placeholder="e.g., 180"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="isbn">ISBN (Optional)</label>
+              <input
+                type="text"
+                id="isbn"
+                name="isbn"
+                placeholder="e.g., 978-0743273565"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="genre">Genre (Optional)</label>
+              <input
+                type="text"
+                id="genre"
+                name="genre"
+                placeholder="e.g., Classic Literature"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="publishDate">Publish Date (Optional)</label>
+              <input type="date" id="publishDate" name="publishDate" />
+            </div>
+
+            <div class="form-group">
+              <label for="status">Reading Status</label>
+              <select id="status" name="status">
+                <option value="unread">Unread</option>
+                <option value="reading">Currently Reading</option>
+                <option value="read">Read</option>
+              </select>
+            </div>
+
+            <!-- Modal Footer - Buttons -->
+            <div class="modal-footer">
+              <button type="button" id="cancelBtn" class="btn btn-secondary">
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">Add Book</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <!-- Book Open Detail Pop Up -->
+      <div id="bookDetailsModal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 id="detailsBookTitle">جزئیات کتاب</h2>
+            <button id="closeBookDetailsModalBtn" class="modal-close-btn">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+          <div class="book-details-content">
+            <dt>Author :</dt>
+            <dd id="detailsAuthorName">-</dd>
+
+            <dt>Pages :</dt>
+            <dd id="detailsPages">-</dd>
+
+            <dt>ISBN :</dt>
+            <dd id="detailsIsbn">-</dd>
+
+            <dt>Genres :</dt>
+            <dd id="detailsGenre">-</dd>
+
+            <dt>Publish Date :</dt>
+            <dd id="detailsPublishDate">-</dd>
+
+            <dt>Read Status :</dt>
+            <dd id="detailsStatus" class="detail-status">-</dd>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              id="editBookDetailsBtn"
+              class="btn btn-primary"
+              style="display: none"
+            >
+              ویرایش
+            </button>
+            <!-- دکمه ویرایش (فعلا مخفی) -->
+            <button
+              type="button"
+              id="closeDetailsModalFooterBtn"
+              class="btn btn-secondary"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </body>
 </html>
