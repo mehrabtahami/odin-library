@@ -75,6 +75,7 @@ h6 {
   --orange: #f2a519;
   --font-color: #fff;
   --gray-color: rgb(204, 204, 204);
+  --modal-bg: #1a2131;
 }
 
 html,
@@ -89,14 +90,9 @@ body {
   flex-direction: column;
   height: 100%;
   min-width: 360px;
-  max-width: 400px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 0 1rem;
-  /* background: linear-gradient(
-    180deg,
-    rgba(211, 216, 255, 1) 0%,
-    rgba(255, 255, 255, 1) 50%
-  ); */
   background-color: var(--bg-color);
   color: var(--font-color);
 }
@@ -119,6 +115,7 @@ header {
   justify-content: flex-end;
   gap: 1.5rem;
   padding: 1rem 0;
+  position: sticky;
 }
 
 header .menu-button {
@@ -149,15 +146,21 @@ main .head-text {
 /* Navigation bar */
 .navbar-container {
   display: flex;
-  justify-content: center;
+  justify-content: space-around;
   align-items: center;
   gap: 2rem;
   padding: 0.2rem 1rem;
   border: 1px solid var(--primary-color);
   border-radius: 2rem;
-  max-width: fit-content;
+  width: 95%;
+  max-width: 400px;
   margin: auto auto 1rem auto;
-  position: relative;
+
+  position: fixed;
+  bottom: 0;
+  background-color: var(--bg-color);
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .navbar-container .addnewbook-button {
@@ -199,4 +202,77 @@ i {
 
 i:hover {
   color: var(--primary-color);
+}
+
+/* Book Modal */
+.books-container {
+  padding: 1rem 0;
+  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 170px));
+  gap: 1rem;
+  width: 100%;
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+.book-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  border-radius: 1rem;
+  background-color: var(--modal-bg);
+  margin-top: 40px; /* This should be same as anothe one who has this ( - / + ) -> ❗ */
+  padding: 0 1rem 1rem 1rem;
+  text-align: center;
+}
+
+.book-modal img {
+  width: 120px;
+  height: 170px;
+  object-fit: cover;
+  border-radius: 1rem;
+  margin-top: -40px; /* This should be same as anothe one who has this ( - / + ) -> ❗ */
+}
+
+.book-modal p.book-name {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.book-modal p.author {
+  font-size: 0.8rem;
+}
+
+.book-modal .author-name {
+  font-style: italic;
+}
+
+/* Media Queries to adjust the grid for different screen sizes */
+@media only screen and (max-width: 480px) {
+  .books-container {
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(150px, 45%)
+    ); /* 2 book per row */
+  }
+}
+
+@media only screen and (min-width: 481px) and (max-width: 768px) {
+  .books-container {
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(140px, 30%)
+    ); /* 3 books per row */
+  }
+}
+
+@media only screen and (min-width: 769px) {
+  .books-container {
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(150px, 22%)
+    ); /* 4 books per row */
+  }
 }
