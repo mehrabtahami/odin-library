@@ -70,24 +70,133 @@ h6 {
   font-family: "Roboto", sans-serif;
   /* font-family: "Agbalumo", system-ui; */
   /* font-family: "Poppins", sans-serif; */
+  --primary-color: #6657fd;
+  --bg-color: #0e1527;
+  --orange: #f2a519;
+  --font-color: #fff;
+  --gray-color: rgb(204, 204, 204);
 }
 
 html,
 body {
   width: 100%;
   height: 100%;
-  background-color: #fff;
+  background-color: #7b85a1;
 }
 
 .container {
   display: flex;
+  flex-direction: column;
   height: 100%;
-  width: 360px;
+  min-width: 360px;
+  max-width: 400px;
   margin: 0 auto;
-  padding: 1rem;
-  background: linear-gradient(
+  padding: 0 1rem;
+  /* background: linear-gradient(
     180deg,
     rgba(211, 216, 255, 1) 0%,
     rgba(255, 255, 255, 1) 50%
-  );
+  ); */
+  background-color: var(--bg-color);
+  color: var(--font-color);
+}
+
+a {
+  text-decoration: none;
+  color: var(--gray-color);
+}
+
+.icon {
+  font-size: 1.5rem;
+  color: var(--gray-color);
+}
+
+header {
+  height: fit-content;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
+header .menu-button {
+  margin-right: auto;
+}
+
+header .current-user img {
+  width: 3rem;
+  height: 3rem;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid var(--bg-color);
+  transition: all 0.1s ease-in;
+}
+
+header .current-user img:hover {
+  border: 1px solid var(--primary-color);
+  padding: 0.2rem;
+}
+
+main .head-text {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+/* Navigation bar */
+.navbar-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  padding: 0.2rem 1rem;
+  border: 1px solid var(--primary-color);
+  border-radius: 2rem;
+  max-width: fit-content;
+  margin: auto auto 1rem auto;
+  position: relative;
+}
+
+.navbar-container .addnewbook-button {
+  width: 4rem;
+  height: 4rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--primary-color);
+  border-radius: 50%;
+  position: absolute;
+  border: 0.3rem solid var(--bg-color);
+  transition: all 0.1s ease-in-out;
+}
+
+.navbar-container .addnewbook-button:hover {
+  background-color: var(--font-color);
+}
+
+.navbar-container .addnewbook-button:hover i {
+  color: var(--primary-color);
+}
+
+.navbar-container .addnewbook-button i {
+  font-size: 2.2rem;
+}
+
+.navbar-container a:nth-child(2) {
+  margin-right: 2rem;
+}
+
+.navbar-container a:nth-child(4) {
+  margin-left: 2rem;
+}
+
+i {
+  transition: all 0.1s ease-in;
+}
+
+i:hover {
+  color: var(--primary-color);
 }
