@@ -1,50 +1,70 @@
 // @ts-nocheck
-// My Books goes here - MY BEAUTIFUL LIBRARY - empty for now
+
+// ⭐⭐⭐ Placeholder image URL if a book cover isn't found or ISBN is invalid
+const PLACEHOLDER_IMAGE_URL = "./assets/images/no-cover.png";
+
+// My Books goes here - MY BEAUTIFUL LIBRARY
 const myLibrary = [
   {
     authorName: "F. Scott Fitzgerald",
     bookName: "The Great Gatsby",
     genre: "classic",
-    id: genreateNewId(),
-    isbn: "1426354",
-    pages: "150",
-    publishDate: "2025-06-18",
+    id: generateNewId(),
+    isbn: "9780743273565", // ⭐ Updated with a valid ISBN - now it fetch Data with ISBN using OPEN LIBRARY API ⭐
+    pages: "180",
+    publishDate: "1925-04-10",
     status: "read",
   },
   {
     authorName: "Matt Haig",
     bookName: "The Midnight Library",
-    genre: "classic",
-    id: genreateNewId(),
-    isbn: "1426354",
-    pages: "150",
-    publishDate: "2025-06-18",
+    genre: "Contemporary Fiction",
+    id: generateNewId(),
+    isbn: "9780525559474",
+    pages: "304",
+    publishDate: "2020-08-13",
     status: "unread",
   },
   {
     authorName: "Sadegh Hedayat",
     bookName: "The Blind Owl",
-    genre: "classic",
-    id: genreateNewId(),
-    isbn: "1426354",
-    pages: "150",
-    publishDate: "2025-06-18",
+    genre: "Philosophical Novel",
+    id: generateNewId(),
+    isbn: "9780802144278",
+    pages: "160",
+    publishDate: "1937-01-01",
     status: "unread",
   },
   {
     authorName: "Mark Manson",
     bookName: "The Subtle Art of Not Giving a F*ck",
-    genre: "classic",
-    id: genreateNewId(),
-    isbn: "1426354",
-    pages: "150",
-    publishDate: "2025-06-18",
+    genre: "Self-help",
+    id: generateNewId(),
+    isbn: "9780062457714",
+    pages: "224",
+    publishDate: "2016-09-13",
     status: "reading",
   },
 ];
-function genreateNewId() {
+
+function generateNewId() {
   return crypto.randomUUID();
 }
+
+// ⭐ Helper function to get book cover URL ⭐
+function getBookCoverUrl(book) {
+  if (book && book.isbn) {
+    const cleanedIsbn = String(book.isbn).replace(/-/g, "");
+    // Basic validation for ISBN-like pattern (10 or 13 digits) REGEX
+    const isbnPattern = /^(?:\d{9}[\dXx]|\d{13})$/;
+    if (isbnPattern.test(cleanedIsbn)) {
+      return `https://covers.openlibrary.org/b/isbn/${cleanedIsbn}-M.jpg`;
+    }
+  }
+  // Fallback for books without a valid ISBN pattern or no ISBN at all
+  return PLACEHOLDER_IMAGE_URL;
+}
+
 createBooksFromLibrary();
 
 // Get modal element
@@ -74,33 +94,33 @@ function openDetailModal() {
 function closeModal() {
   modal.classList.remove("modal-visible");
 }
-function closeDeatilModal() {
+function closeDetailsModal() {
   bookDetailsModal.classList.remove("modal-visible");
 }
 
 // Event listener to open modal
 if (openModalBtn) {
-  // Check if button exists
   openModalBtn.addEventListener("click", openModal);
 }
 
 // Event listener to close modal via 'X' button
 if (closeModalBtn) {
-  // Check if button exists
   closeModalBtn.addEventListener("click", closeModal);
 }
 
 // Event listener to close modal via 'Cancel' button
 if (cancelBtn) {
-  // Check if button exists
   cancelBtn.addEventListener("click", closeModal);
 }
 
 // Event listener to close modal if user clicks outside of the modal content
 window.addEventListener("click", (event) => {
   if (event.target === modal) {
-    // Check if the click is on the modal backdrop
     closeModal();
+  }
+  if (event.target === bookDetailsModal) {
+    // ⭐⭐⭐ Added for details modal consistency
+    closeDetailsModal();
   }
 });
 
@@ -108,15 +128,12 @@ window.addEventListener("click", (event) => {
 
 // Event listener for form submission
 if (addBookForm) {
-  // Check if form exists
   addBookForm.addEventListener("submit", (event) => {
-    event.preventDefault(); // Prevent default form submission
-    addBookToLibrary(); // Add New Book To Library with this Function
-    // Create New Book On DOM
-    createNewBookOnPage();
-    // Simple custom notification instead of alert()
+    event.preventDefault();
+    addBookToLibrary();
+    createNewBookOnPage(); // This will now use the new image logic
     const notification = document.createElement("div");
-    notification.textContent = "New book added (check console for data)!";
+    notification.textContent = "New book added!";
     notification.style.position = "fixed";
     notification.style.bottom = "20px";
     notification.style.left = "50%";
@@ -127,16 +144,15 @@ if (addBookForm) {
     notification.style.borderRadius = "5px";
     notification.style.boxShadow = "0 2px 10px rgba(0,0,0,0.2)";
     notification.style.marginBottom = "4rem";
-    notification.style.zIndex = "2000"; // Ensure it's above the modal overlay
+    notification.style.zIndex = "2000";
     document.body.appendChild(notification);
 
     setTimeout(() => {
       notification.remove();
-    }, 3000); // Remove notification after 3 seconds
+    }, 3000);
 
-    addBookForm.reset(); // Reset the form fields
-    closeModal(); // Close the modal after submission
-    // Log My Library
+    addBookForm.reset();
+    closeModal();
     console.log(myLibrary);
   });
 }
@@ -152,171 +168,162 @@ const statusInput = document.querySelector("#status");
 
 // New Book Object Constructors
 function Book(bookName, authorName, pages, isbn, genre, publishDate, status) {
-  this.bookName = bookNameInput.value;
-  this.authorName = authorNameInput.value;
-  this.pages = pagesInput.value;
-  this.isbn = isbnInput.value;
-  this.genre = genreInput.value;
-  this.publishDate = publishDateInput.value;
-  this.status = statusInput.value;
+  this.bookName = bookName;
+  this.authorName = authorName;
+  this.pages = pages;
+  this.isbn = isbn;
+  this.genre = genre;
+  this.publishDate = publishDate;
+  this.status = status;
+  this.id = generateNewId();
 }
+
 // Create New Book & Add Book To Library
 function addBookToLibrary() {
-  // Create New Book
-  const newBook = new Book();
-  const bookId = crypto.randomUUID(); // genreate random ID for each Book
-  newBook.id = bookId;
-  // Push New Book To Library
+  const newBook = new Book(
+    bookNameInput.value,
+    authorNameInput.value,
+    pagesInput.value,
+    isbnInput.value,
+    genreInput.value,
+    publishDateInput.value,
+    statusInput.value
+  );
   myLibrary.push(newBook);
 }
 
 // Show New Book on DOM - Append ********************
-// Get Home Page Books Container
 function createNewBookOnPage() {
   const HomePageBooksContainer = document.querySelector(
     "#home-page-books-container"
   );
-  // create New Book Modal container
+  const lastAddedBook = myLibrary[myLibrary.length - 1]; // Get the most recently added book
+
   const bookModal = document.createElement("div");
   bookModal.classList.add("book-modal");
   HomePageBooksContainer.appendChild(bookModal);
   // Create Book Modal img
   const bookImage = document.createElement("img");
-  bookImage.setAttribute(
-    "src",
-    `./assets/images/book-covers/the-subtle-art.jpg`
-  );
+  // ⭐⭐⭐ Use the helper function to get the cover URL
+  bookImage.src = getBookCoverUrl(lastAddedBook);
+  // ⭐⭐⭐ Add an error handler for the image
+  bookImage.onerror = function () {
+    this.src = PLACEHOLDER_IMAGE_URL; // Fallback to placeholder if image fails to load
+  };
   bookModal.appendChild(bookImage);
-  // Create Book Name
+
   const bookName = document.createElement("p");
   bookName.classList.add("book-name");
+  bookName.textContent = lastAddedBook.bookName;
   bookModal.appendChild(bookName);
-  // Create Book Author Name
+
   const bookAuthor = document.createElement("p");
   bookAuthor.classList.add("author");
+  bookAuthor.textContent = lastAddedBook.authorName;
   bookModal.appendChild(bookAuthor);
+
   // Create Book Read Status
   const readStatusDiv = document.createElement("div");
   readStatusDiv.classList.add("read-status");
-  const readStatus = document.createElement("i");
-  readStatus.classList.add("bi");
+  const readStatusIconElement = document.createElement("i");
+  readStatusIconElement.classList.add("bi");
+  readStatusDiv.appendChild(readStatusIconElement);
   bookModal.appendChild(readStatusDiv);
-  readStatusDiv.appendChild(readStatus);
 
   // filling 'em
-  bookName.textContent = bookNameInput.value;
-  bookAuthor.textContent = authorNameInput.value;
-  // read status add
-  if (statusInput.value === "read") {
-    readStatus.classList.add("bi-check-circle-fill");
-  } else if (statusInput.value === "unread") {
-    readStatus.classList.add("bi-x-circle-fill");
+  if (lastAddedBook.status === "read") {
+    readStatusIconElement.classList.add("bi-check-circle-fill");
+  } else if (lastAddedBook.status === "unread") {
+    readStatusIconElement.classList.add("bi-x-circle-fill");
   } else {
-    readStatus.classList.add("bi-hourglass-split");
+    readStatusIconElement.classList.add("bi-hourglass-split");
   }
 
-  // ADD UNIQUE BOOK ID's to DOM BOOK MODALs
   const bookIdonDom = document.createElement("span");
   bookIdonDom.classList.add("book-id");
-  const lastAddedBook = myLibrary.length - 1;
-  bookIdonDom.textContent = myLibrary[lastAddedBook].id;
+  bookIdonDom.textContent = lastAddedBook.id;
   bookIdonDom.style.display = "none";
   bookModal.appendChild(bookIdonDom);
 }
 
 // Change Read Status DOM Icon and Array Library ****** ✴️❗
-const booksContainer = document.querySelector(".books-container");
+const booksContainer = document.querySelector("#home-page-books-container");
+
 if (booksContainer) {
   booksContainer.addEventListener("click", (event) => {
-    const readStatusButton = event.target.closest(".read-status");
-    let readStatusIcon = null;
+    const bookCard = event.target.closest(".book-modal");
+    const bookIdElement = bookCard.querySelector(".book-id");
+    const bookIdValue = bookIdElement.textContent.trim();
 
-    // CHANGE DOM READ STATUS INTERFACE
+    const bookInLibrary = myLibrary.find(
+      (book) => String(book.id) === bookIdValue
+    );
+
+    if (!bookInLibrary) {
+      console.warn(`Book with ID ${bookIdValue} not found in library.`);
+      return;
+    }
+
+    // Handle read status change
+    const readStatusButton = event.target.closest(".read-status");
     if (readStatusButton) {
-      readStatusIcon = readStatusButton.querySelector("i");
+      const readStatusIcon = readStatusButton.querySelector("i");
       if (readStatusIcon) {
         if (readStatusIcon.classList.contains("bi-hourglass-split")) {
           readStatusIcon.classList.remove("bi-hourglass-split");
           readStatusIcon.classList.add("bi-check-circle-fill");
+          bookInLibrary.status = "read";
         } else if (readStatusIcon.classList.contains("bi-x-circle-fill")) {
           readStatusIcon.classList.remove("bi-x-circle-fill");
           readStatusIcon.classList.add("bi-hourglass-split");
+          bookInLibrary.status = "reading";
         } else if (readStatusIcon.classList.contains("bi-check-circle-fill")) {
           readStatusIcon.classList.remove("bi-check-circle-fill");
           readStatusIcon.classList.add("bi-x-circle-fill");
+          bookInLibrary.status = "unread";
         }
+        console.log("Book status updated:", bookInLibrary);
       }
     }
 
-    // Finding Nearest Parent BOOK MODAL CARD
-    const bookCard = event.target.closest(".book-modal");
-
-    if (bookCard) {
-      const bookIdDom = bookCard.querySelector(".book-id");
-      if (bookIdDom) {
-        const bookIdValue = bookIdDom.textContent.trim(); // extract exact ID
-        for (let i in myLibrary) {
-          if (String(myLibrary[i].id) === bookIdValue) {
-            const currentBookReadStatusIcon =
-              bookCard.querySelector(".read-status i");
-
-            if (currentBookReadStatusIcon) {
-              if (
-                currentBookReadStatusIcon.classList.contains(
-                  "bi-check-circle-fill"
-                )
-              ) {
-                myLibrary[i].status = "read";
-              } else if (
-                currentBookReadStatusIcon.classList.contains(
-                  "bi-hourglass-split"
-                )
-              ) {
-                myLibrary[i].status = "reading";
-              } else if (
-                currentBookReadStatusIcon.classList.contains("bi-x-circle-fill")
-              ) {
-                myLibrary[i].status = "unread"; // اصلاح اشتباه تایپی "unred"
-              }
-              console.log("وضعیت کتاب به‌روز شد:", myLibrary[i]);
-              break; // پس از پیدا کردن و به‌روزرسانی کتاب، از حلقه خارج شوید
-            }
-            break;
-          }
-        }
-      } else {
-        console.warn("عنصر .book-id در کارت کتاب پیدا نشد.");
-      }
-    } else {
-      // کلیک خارج از یک کارت کتاب بوده است، نیازی به پردازش ID یا وضعیت نیست
-      // console.log("کلیک خارج از یک کارت کتاب انجام شد.");
+    // Handle opening book details modal when image is clicked
+    // Ensure the clicked target is an IMG tag and is a direct child of bookCard (the main cover)
+    if (
+      event.target.tagName === "IMG" &&
+      event.target.parentElement === bookCard
+    ) {
+      openDetailModal();
+      detailsBookTitle.textContent = bookInLibrary.bookName;
+      detailsAuthorName.textContent = bookInLibrary.authorName;
+      detailsPages.textContent = bookInLibrary.pages;
+      detailsIsbn.textContent = bookInLibrary.isbn;
+      detailsGenre.textContent = bookInLibrary.genre;
+      detailsPublishDate.textContent = bookInLibrary.publishDate;
+      detailsStatus.textContent = bookInLibrary.status
+        ? String(bookInLibrary.status).toUpperCase()
+        : "";
     }
   });
 } else {
-  console.error("کانتینر کتاب‌ها (booksContainer) پیدا نشد.");
+  console.error("Books container (#home-page-books-container) not found.");
 }
 
 // open books details modal ✴️❗
 const closeBookDetailsModalBtn = document.querySelector(
   "#closeBookDetailsModalBtn"
 );
-closeBookDetailsModalBtn.addEventListener("click", () => {
-  closeDeatilModal();
-});
+if (closeBookDetailsModalBtn) {
+  closeBookDetailsModalBtn.addEventListener("click", closeDetailsModal);
+}
+
 const closeDetailsModalFooterBtn = document.querySelector(
   "#closeDetailsModalFooterBtn"
 );
-closeDetailsModalFooterBtn.addEventListener("click", () => {
-  closeDeatilModal();
-});
+if (closeDetailsModalFooterBtn) {
+  closeDetailsModalFooterBtn.addEventListener("click", closeDetailsModal);
+}
 
-window.addEventListener("click", (event) => {
-  if (event.target === bookDetailsModal) {
-    closeDeatilModal();
-  }
-});
-
-// Show Book Details
+// Show Book Details - Elements
 const detailsBookTitle = document.querySelector("#detailsBookTitle");
 const detailsAuthorName = document.querySelector("#detailsAuthorName");
 const detailsPages = document.querySelector("#detailsPages");
@@ -325,77 +332,88 @@ const detailsGenre = document.querySelector("#detailsGenre");
 const detailsPublishDate = document.querySelector("#detailsPublishDate");
 const detailsStatus = document.querySelector("#detailsStatus");
 
-if (booksContainer) {
-  booksContainer.addEventListener("click", (event) => {
-    const bookCard = event.target.closest(".book-modal");
-    const clickedImg = event.target.closest("img");
-    if (clickedImg) {
-      openDetailModal();
-      const clickedBookId = bookCard.querySelector(".book-id");
-      for (let i in myLibrary) {
-        if (String(clickedBookId.textContent.trim()) === myLibrary[i].id) {
-          detailsBookTitle.textContent = myLibrary[i].bookName;
-          detailsAuthorName.textContent = myLibrary[i].authorName;
-          detailsPages.textContent = myLibrary[i].pages;
-          detailsIsbn.textContent = myLibrary[i].isbn;
-          detailsGenre.textContent = myLibrary[i].genre;
-          detailsPublishDate.textContent = myLibrary[i].publishDate;
-          detailsStatus.textContent = myLibrary[i].status.toUpperCase();
-        }
-      }
-    }
-  });
-}
-
 // Function For creating Books from MyLibrary Array ✅
 function createBooksFromLibrary() {
   const HomePageBooksContainer = document.querySelector(
     "#home-page-books-container"
   );
-  //*************************** */
+  // Null Check
+  if (!HomePageBooksContainer) {
+    console.error(
+      "#home-page-books-container not found for initial book loading."
+    );
+    return;
+  }
+
   for (let i in myLibrary) {
-    // create New Book Modal container
+    const currentBook = myLibrary[i]; // ⭐ Use currentBook for clarity
     const bookModal = document.createElement("div");
     bookModal.classList.add("book-modal");
     HomePageBooksContainer.appendChild(bookModal);
-    // Create Book Modal img
+
     const bookImage = document.createElement("img");
-    bookImage.setAttribute(
-      "src",
-      `./assets/images/book-covers/the-subtle-art.jpg`
-    );
+    // ⭐ Use the helper function to get the cover URL
+    bookImage.src = getBookCoverUrl(currentBook);
+    // ⭐ Add an error handler for the image
+    bookImage.onerror = function () {
+      this.src = PLACEHOLDER_IMAGE_URL; // Fallback to placeholder if image fails to load
+    };
     bookModal.appendChild(bookImage);
-    // Create Book Name
+
     const bookName = document.createElement("p");
     bookName.classList.add("book-name");
+    bookName.textContent = currentBook.bookName;
     bookModal.appendChild(bookName);
-    // Create Book Author Name
+
     const bookAuthor = document.createElement("p");
     bookAuthor.classList.add("author");
+    bookAuthor.textContent = currentBook.authorName;
     bookModal.appendChild(bookAuthor);
-    // Create Book Read Status
+
     const readStatusDiv = document.createElement("div");
     readStatusDiv.classList.add("read-status");
-    const readStatus = document.createElement("i");
-    readStatus.classList.add("bi");
+    const readStatusIconElement = document.createElement("i");
+    readStatusIconElement.classList.add("bi");
+    readStatusDiv.appendChild(readStatusIconElement);
     bookModal.appendChild(readStatusDiv);
-    readStatusDiv.appendChild(readStatus);
-    bookName.textContent = myLibrary[i].bookName;
-    bookAuthor.textContent = myLibrary[i].authorName;
-    // read status add
-    if (myLibrary[i].status === "read") {
-      readStatus.classList.add("bi-check-circle-fill");
-    } else if (myLibrary[i].status === "unread") {
-      readStatus.classList.add("bi-x-circle-fill");
-    } else {
-      readStatus.classList.add("bi-hourglass-split");
-    }
 
+    if (currentBook.status === "read") {
+      readStatusIconElement.classList.add("bi-check-circle-fill");
+    } else if (currentBook.status === "unread") {
+      readStatusIconElement.classList.add("bi-x-circle-fill");
+    } else {
+      readStatusIconElement.classList.add("bi-hourglass-split");
+    }
     // ADD UNIQUE BOOK ID's to DOM BOOK MODALs
     const bookIdonDom = document.createElement("span");
     bookIdonDom.classList.add("book-id");
-    bookIdonDom.textContent = myLibrary[i].id;
+    bookIdonDom.textContent = currentBook.id;
     bookIdonDom.style.display = "none";
     bookModal.appendChild(bookIdonDom);
   }
 }
+
+// Search Button Activate and Animation 🔍
+const searchBox = document.querySelector(".search-button");
+const searchBoxButton = searchBox.querySelector("i");
+const searchBoxInput = document.querySelector(".search-input");
+
+searchBoxInput.addEventListener("focus", () => {
+  searchBox.classList.add("input-is-focused");
+});
+
+searchBoxInput.addEventListener("blur", () => {
+  searchBox.classList.remove("input-is-focused");
+});
+
+searchBoxButton.addEventListener("click", (e) => {
+  const searchBoxValue = searchBoxInput.value;
+  console.log(`Search Input is = ${searchBoxValue}`);
+});
+
+searchBoxInput.addEventListener("keyup", (e) => {
+  if (e.key === "Enter" || e.keyCode === 13) {
+    const searchBoxValue = searchBoxInput.value;
+    console.log(`Search Input is = ${searchBoxValue}`);
+  }
+});

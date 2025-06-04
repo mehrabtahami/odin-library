@@ -491,3 +491,49 @@ i:hover {
   margin-right: 0.5rem;
   vertical-align: middle;
 }
+
+/* Search Box */
+.search-button {
+  display: flex;
+  align-items: center;
+  border-radius: 5rem;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.search-button:hover {
+  background-color: var(--input-bg);
+}
+
+.search-button input {
+  background-color: transparent; /* پس‌زمینه شفاف */
+  border: none;
+  color: var(--font-color);
+  width: 0;
+  opacity: 0;
+  visibility: hidden;
+  padding: 0.5rem 0;
+  margin-right: 0;
+  transition: width 0.4s ease-in-out, opacity 0.3s ease-in-out 0.1s,
+    padding 0.4s ease-in-out, margin 0.4s ease-in-out, visibility 0s linear 0.4s;
+  font-size: 1rem;
+  outline: none;
+}
+
+.search-button:hover input,
+.search-button input:focus {
+  width: 200px;
+  opacity: 1;
+  visibility: visible;
+  padding-left: 0.75rem;
+  padding-right: 0.5rem;
+  margin-right: 0.5rem;
+  transition: width 0.4s ease-in-out, opacity 0.3s ease-in-out,
+    padding 0.4s ease-in-out, margin 0.4s ease-in-out, visibility 0s linear 0s;
+  outline: none;
+}
+
+.input-is-focused {
+  background-color: var(--input-bg);
+}
