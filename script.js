@@ -397,7 +397,7 @@ function createBooksFromLibrary() {
 const searchBox = document.querySelector(".search-button");
 const searchBoxButton = searchBox.querySelector("i");
 const searchBoxInput = document.querySelector(".search-input");
-
+let searchBoxValue;
 searchBoxInput.addEventListener("focus", () => {
   searchBox.classList.add("input-is-focused");
 });
@@ -407,13 +407,13 @@ searchBoxInput.addEventListener("blur", () => {
 });
 
 searchBoxButton.addEventListener("click", (e) => {
-  const searchBoxValue = searchBoxInput.value;
+  searchBoxValue = searchBoxInput.value;
   console.log(`Search Input is = ${searchBoxValue}`);
 });
 
 searchBoxInput.addEventListener("keyup", (e) => {
   if (e.key === "Enter" || e.keyCode === 13) {
-    const searchBoxValue = searchBoxInput.value;
+    searchBoxValue = searchBoxInput.value;
     console.log(`Search Input is = ${searchBoxValue}`);
   }
 });
