@@ -239,6 +239,7 @@ i:hover {
   object-fit: cover;
   border-radius: 1rem;
   margin-top: -40px; /* This should be same as anothe one who has this ( - / + ) -> ❗ */
+  cursor: pointer;
 }
 
 .book-modal p.book-name {
