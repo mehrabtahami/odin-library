@@ -30,7 +30,7 @@ const myLibrary = [
     bookName: "The Blind Owl",
     genre: "Philosophical Novel",
     id: generateNewId(),
-    isbn: "9780802144278",
+    isbn: "9780802131805",
     pages: "160",
     publishDate: "1937-01-01",
     status: "unread",
@@ -130,7 +130,7 @@ window.addEventListener("click", (event) => {
 if (addBookForm) {
   addBookForm.addEventListener("submit", (event) => {
     event.preventDefault();
-    addBookToLibrary();
+    addBookToLibraryFromForm();
     createNewBookOnPage(); // This will now use the new image logic
     const notification = document.createElement("div");
     notification.textContent = "New book added!";
@@ -178,8 +178,8 @@ function Book(bookName, authorName, pages, isbn, genre, publishDate, status) {
   this.id = generateNewId();
 }
 
-// Create New Book & Add Book To Library
-function addBookToLibrary() {
+// Create New Book & Add Book To Library from form
+function addBookToLibraryFromForm() {
   const newBook = new Book(
     bookNameInput.value,
     authorNameInput.value,
@@ -190,6 +190,29 @@ function addBookToLibrary() {
     statusInput.value
   );
   myLibrary.push(newBook);
+}
+
+function addBookToLibrary(bookObject) {
+  // Check if book already exists by ISBN (if available) or by title and author
+  const existingBook = myLibrary.find((libBook) => {
+    if (bookObject.isbn && libBook.isbn === bookObject.isbn) {
+      return true;
+    }
+    return (
+      libBook.bookName === bookObject.bookName &&
+      libBook.authorName === bookObject.authorName
+    );
+  });
+
+  if (existingBook) {
+    showNotification("این کتاب قبلاً به کتابخانه اضافه شده است.", "warning");
+    return false; // Indicate book was not added
+  }
+
+  myLibrary.push(bookObject);
+  createNewBookOnPage(bookObject); // Display the newly added book
+  showNotification("کتاب با موفقیت اضافه شد!", "success");
+  return true; // Indicate book was added
 }
 
 // Show New Book on DOM - Append ********************
@@ -417,3 +440,181 @@ searchBoxInput.addEventListener("keyup", (e) => {
     console.log(`Search Input is = ${searchBoxValue}`);
   }
 });
+
+// Search Functionality
+// Search Box Elements
+const searchContainer = document.querySelector(".search-container"); // Changed to parent container
+const searchButtonIcon = document.querySelector(".search-button .bi-search");
+const searchInput = document.querySelector(".search-input");
+const searchResultsContainer = document.querySelector(
+  "#search-results-container"
+);
+
+// --- OpenLibrary Search Functionality ---
+async function searchOpenLibrary(query) {
+  if (!query.trim()) {
+    searchResultsContainer.innerHTML = "";
+    searchResultsContainer.style.display = "none";
+    return;
+  }
+
+  // Display loading indicator
+  searchResultsContainer.innerHTML =
+    '<div class="search-result-item loading">Searching...</div>';
+  searchResultsContainer.style.display = "block";
+
+  const url = `https://openlibrary.org/search.json?q=${encodeURIComponent(
+    query
+  )}&limit=5&fields=key,title,author_name,first_publish_year,isbn,cover_i`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    displaySearchResults(data.docs);
+  } catch (error) {
+    console.error("Error fetching from OpenLibrary:", error);
+    searchResultsContainer.innerHTML =
+      '<div class="search-result-item error">Error, try again</div>';
+    searchResultsContainer.style.display = "block";
+  }
+}
+
+function displaySearchResults(books) {
+  searchResultsContainer.innerHTML = ""; // Clear previous results or loading message
+  if (!books || books.length === 0) {
+    searchResultsContainer.innerHTML =
+      '<div class="search-result-item">Nothing Found.</div>';
+    searchResultsContainer.style.display = "block";
+    return;
+  }
+
+  books.forEach((book) => {
+    const item = document.createElement("div");
+    item.classList.add("search-result-item");
+
+    let coverUrl = PLACEHOLDER_IMAGE_URL;
+    if (book.cover_i) {
+      coverUrl = `https://covers.openlibrary.org/b/id/${book.cover_i}-S.jpg`;
+    } else if (book.isbn && book.isbn[0]) {
+      // Try ISBN if cover_i is not available
+      const cleanedIsbn = String(book.isbn[0]).replace(/-/g, "");
+      const isbnPattern = /^(?:\d{9}[\dXx]|\d{13})$/;
+      if (isbnPattern.test(cleanedIsbn)) {
+        coverUrl = `https://covers.openlibrary.org/b/isbn/${cleanedIsbn}-S.jpg`;
+      }
+    }
+
+    const authorText = book.author_name
+      ? book.author_name.join(", ")
+      : "نویسنده نامشخص";
+    const publishYearText = book.first_publish_year
+      ? `(${book.first_publish_year})`
+      : "";
+
+    item.innerHTML = `
+      <img src="${coverUrl}" alt="cover image ${book.title}" class="search-result-cover" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMAGE_URL}';">
+      <div class="search-result-info">
+        <div class="search-result-title">${book.title}</div>
+        <div class="search-result-author">${authorText} ${publishYearText}</div>
+      </div>
+    `;
+
+    item.addEventListener("click", () => {
+      const newBook = new Book(
+        book.title,
+        book.author_name ? book.author_name.join(", ") : "نامشخص",
+        null, // Pages not available directly from search
+        book.isbn ? book.isbn[0] : null, // Taking the first ISBN
+        null, // Genre not available
+        book.first_publish_year ? `${book.first_publish_year}-01-01` : null, // Assuming start of year
+        "unread" // Default status
+      );
+      if (addBookToLibrary(newBook)) {
+        // Optionally clear search and hide results after adding
+        searchInput.value = "";
+        searchResultsContainer.innerHTML = "";
+        searchResultsContainer.style.display = "none";
+      }
+    });
+    searchResultsContainer.appendChild(item);
+  });
+  searchResultsContainer.style.display = "block";
+}
+
+// Event listener for search input
+if (searchInput) {
+  searchInput.addEventListener("focus", () => {
+    searchContainer.classList.add("input-is-focused");
+  });
+
+  searchInput.addEventListener("blur", () => {
+    // Delay hiding results to allow click event on results
+    setTimeout(() => {
+      if (!searchResultsContainer.matches(":hover")) {
+        // Hide only if mouse is not over results
+        // searchResultsContainer.innerHTML = "";
+        // searchResultsContainer.style.display = "none";
+      }
+    }, 200);
+    searchContainer.classList.remove("input-is-focused");
+  });
+
+  let searchTimeout;
+  searchInput.addEventListener("keyup", (e) => {
+    clearTimeout(searchTimeout);
+    if (e.key === "Enter") {
+      searchOpenLibrary(searchInput.value);
+    } else {
+      // Debounce search to avoid too many API calls
+      searchTimeout = setTimeout(() => {
+        searchOpenLibrary(searchInput.value);
+      }, 500); // Wait 500ms after user stops typing
+    }
+  });
+}
+
+if (searchButtonIcon) {
+  searchButtonIcon.addEventListener("click", () => {
+    searchOpenLibrary(searchInput.value);
+    // Keep search results visible if search icon is clicked
+    if (searchResultsContainer.innerHTML.trim() !== "") {
+      searchResultsContainer.style.display = "block";
+    }
+  });
+}
+
+// Helper function to show notifications
+function showNotification(message, type = "info") {
+  // type can be 'success', 'error', 'warning'
+  const notification = document.createElement("div");
+  notification.textContent = message;
+  notification.style.position = "fixed";
+  notification.style.bottom = "20px";
+  notification.style.left = "50%";
+  notification.style.transform = "translateX(-50%)";
+  notification.style.color = "var(--font-color)";
+  notification.style.padding = "10px 20px";
+  notification.style.borderRadius = "5px";
+  notification.style.boxShadow = "0 2px 10px rgba(0,0,0,0.2)";
+  notification.style.marginBottom = "4rem";
+  notification.style.zIndex = "2000";
+
+  if (type === "success") {
+    notification.style.backgroundColor = "var(--primary-color)"; // Or a green color
+  } else if (type === "error") {
+    notification.style.backgroundColor = "rgb(192, 14, 14)"; // Red
+  } else if (type === "warning") {
+    notification.style.backgroundColor = "var(--orange)"; // Orange/Yellow
+  } else {
+    notification.style.backgroundColor = "var(--gray-color)"; // Default
+  }
+
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.remove();
+  }, 3000);
+}

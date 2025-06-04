@@ -97,6 +97,7 @@ body {
   padding: 0 1rem;
   background-color: var(--bg-color);
   color: var(--font-color);
+  overflow-y: auto;
 }
 
 a {
@@ -118,6 +119,7 @@ header {
   gap: 1.5rem;
   padding: 1rem 0;
   position: sticky;
+  z-index: 2;
 }
 
 header .menu-button {
@@ -216,7 +218,7 @@ i:hover {
   gap: 1rem;
   row-gap: 2rem;
   width: 100%;
-  max-height: 100vh;
+  max-height: calc(100vh - 215px);
   overflow-y: auto;
 }
 
@@ -230,6 +232,7 @@ i:hover {
   margin-top: 40px; /* This should be same as anothe one who has this ( - / + ) -> ❗ */
   padding: 0 1rem 1.2rem 1rem;
   text-align: center;
+  /* height: 250px; */
   position: relative;
 }
 
@@ -256,9 +259,9 @@ i:hover {
 }
 
 .book-modal .read-status {
-  font-size: 2rem;
   position: absolute;
-  bottom: -23px;
+  font-size: 2rem;
+  bottom: -25px;
 }
 
 .book-modal .read-status i.bi-check-circle-fill {
@@ -507,7 +510,7 @@ i:hover {
 }
 
 .search-button input {
-  background-color: transparent; /* پس‌زمینه شفاف */
+  background-color: transparent;
   border: none;
   color: var(--font-color);
   width: 0;
@@ -523,7 +526,7 @@ i:hover {
 
 .search-button:hover input,
 .search-button input:focus {
-  width: 200px;
+  width: 150px;
   opacity: 1;
   visibility: visible;
   padding-left: 0.75rem;
@@ -536,4 +539,73 @@ i:hover {
 
 .input-is-focused {
   background-color: var(--input-bg);
+}
+
+/* Search Results Container */
+.search-results-container {
+  position: absolute;
+  top: 100%; /* Position below the search input */
+  left: 0;
+  right: 0;
+  background-color: var(--modal-bg);
+  border: 1px solid var(--border-color);
+  border-top: none; /* Avoid double border with search input */
+  border-radius: 0 0 0.5rem 0.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1001; /* Ensure it's above other content but below modals */
+  display: none; /* Hidden by default */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.search-result-item {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: background-color 0.2s ease;
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+.search-result-item:hover {
+  background-color: var(--input-bg);
+}
+
+.search-result-item.loading,
+.search-result-item.error {
+  justify-content: center;
+  color: var(--gray-color);
+}
+
+.search-result-cover {
+  width: 40px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 0.25rem;
+  flex-shrink: 0; /* Prevent image from shrinking */
+}
+.search-result-info {
+  display: flex;
+  flex-direction: column;
+  text-align: right; /* For RTL */
+  overflow: hidden; /* Prevent text overflow */
+}
+.search-result-title {
+  font-weight: 600;
+  color: var(--font-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.search-result-author {
+  font-size: 0.85rem;
+  color: var(--gray-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
